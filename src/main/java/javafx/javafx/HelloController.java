@@ -1,49 +1,59 @@
 package javafx.javafx;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.util.Callback;
 
 import java.net.URL;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
-    //textField: especificar o tipo de conteudo e o initializable: como vai iniciar o controller
-    //listener: controla o comportamento do controle é uma funçao que vai ser executada quando o controle sofrer alguma alteraçao ou interaçao com o usuario
     @FXML
-    private Button btSum;
+    public void onComboBoxPersonAction(){
+        Person person = comboBoxPerson.getSelectionModel().getSelectedItem();
+        System.out.println(person);
+    }//guarda a pessoa que foi selecionada.
 
     @FXML
-    public void onBtSumAction() {
-        try {
-            Locale.setDefault(Locale.US);
-            double height = Double.parseDouble(txtNumber1.getText());
-            double width = Double.parseDouble(txtNumber2.getText());
-            double sum = height + width;
-            labelResult.setText(String.format("%.2f", sum));
-        } catch (NumberFormatException e) {
-            Alerts.showAlert("Error", "Parse error", e.getMessage(), Alert.AlertType.ERROR);
+    private Button btAll;
+
+    @FXML
+    public void onBtAllAction(){
+        for (Person person: comboBoxPerson.getItems())
+        {
+            System.out.println(person);
+
         }
-        // setText vai jogar o conteúdo da variavel soma
     }
 
     @FXML
-    private TextField txtNumber1;
-    @FXML
-    private TextField txtNumber2;
-    @FXML
-    private Label labelResult;
+    private ComboBox<Person> comboBoxPerson;
+//cria um componente visual entre a minha lista e o scenebuilder
+    private ObservableList<Person> obsList;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Constraints.setTextFieldDouble(txtNumber1);
-        Constraints.setTextFieldDouble(txtNumber2);//só deixa digitar double
-        Constraints.setTextFieldMaxLength(txtNumber1,12);
-        Constraints.setTextFieldMaxLength(txtNumber2,12);
+            List<Person> list = new ArrayList<>();
+            list.add(new Person(1, "Maria", "maria@"));
+        list.add(new Person(2, "João", "maria@"));
+        list.add(new Person(3, "Eduardo", "maria@"));
+        //agora vai pegar esta lista e colocar no observableList
+        obsList = FXCollections.observableArrayList(list);
+        comboBoxPerson.setItems(obsList);//coloca no combobox a lista
 
-    }
+        Callback<ListView<Person>, ListCell<Person>> factory = lv -> new ListCell<Person>() {
+            @Override
+            protected void updateItem(Person item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item.getName());
+            }
+        };
+        comboBoxPerson.setCellFactory(factory);
+        comboBoxPerson.setButtonCell(factory.call(null));
+    }//editar a saida de dados do combobox
 }
